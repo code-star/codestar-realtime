@@ -1,0 +1,97 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.0.1
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka_broker_0:
+    image: confluentinc/cp-kafka:5.0.1
+    hostname: kafka_broker_0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_broker_0:19092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+
+  kafka_broker_1:
+    image: confluentinc/cp-kafka:5.0.1
+    hostname: kafka_broker_1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9093"
+      - "19093:19093"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_broker_1:19093,PLAINTEXT_HOST://localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+
+  kafka_broker_2:
+    image: confluentinc/cp-kafka:5.0.1
+    hostname: kafka_broker_2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+      - "19094:19094"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka_broker_2:19094,PLAINTEXT_HOST://localhost:9094
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+
+  schema_registry:
+    image: confluentinc/cp-schema-registry:5.0.1
+    hostname: schema_registry
+    depends_on:
+      - zookeeper
+      - kafka_broker_0
+      - kafka_broker_1
+      - kafka_broker_2
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema_registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+
+  kafka_rest_api:
+    image: confluentinc/cp-kafka-rest:5.0.1
+    hostname: kafka_rest_api
+    depends_on:
+      - schema_registry
+    ports:
+      - "8082:8082"
+    environment:
+      KAFKA_REST_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_REST_LISTENERS: 'http://0.0.0.0:8082'
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'schema_registry:8081'
+      KAFKA_REST_HOST_NAME: 'localhost'
+
+  kafka_topics_ui_local:
+    image: landoop/kafka-topics-ui:latest
+    hostname: kafka_topics_ui_local
+    depends_on:
+      - kafka_rest_api
+    ports:
+      - "8000:8000"
+    environment:
+      KAFKA_REST_PROXY_URL: 'docker.for.mac.host.internal:8082' # we are proxying requests to get around CORS, but we need the actual hostname since referencing kafka_rest_api directly does not work
+      PROXY: 'true'
+      MAX_BYTES: '50000000'
