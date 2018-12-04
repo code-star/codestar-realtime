@@ -1,4 +1,4 @@
-package com.ordina.codestar.util
+package nl.codestar.util
 
 import com.google.transit.realtime.GtfsRealtime
 

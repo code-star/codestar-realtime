@@ -1,7 +1,7 @@
-package com.ordina.codestar.data
+package nl.codestar.data
 
 import com.google.transit.realtime.GtfsRealtime.Position
-import com.ordina.codestar.util.BoundingBox
+import nl.codestar.util.BoundingBox
 
 class PositionsMap(protected val map: Map[String, Position]) {
 

@@ -1,11 +1,11 @@
-package com.ordina.codestar
+package nl.codestar
 
 import java.util.{ Calendar, Properties }
 
 import com.typesafe.config.ConfigFactory
 import org.apache.kafka.clients.producer.{ KafkaProducer, ProducerConfig, ProducerRecord }
 import org.apache.kafka.common.serialization.{ ByteArraySerializer, StringSerializer }
-import com.ordina.codestar.data.VehiclesReader
+import nl.codestar.data.VehiclesReader
 import org.slf4j.{ Logger, LoggerFactory }
 
 class PositionsProducer(brokers: String, topic: String, feedUrl: String) {

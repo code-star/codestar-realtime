@@ -1,4 +1,4 @@
-package com.ordina.codestar
+package nl.codestar
 
 import java.util.Properties
 
