@@ -20,20 +20,18 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka"  %% "akka-stream-testkit"  % akkaVersion     % Test,
       "org.scalatest"      %% "scalatest"            % "3.0.1"         % Test,
 
-      "org.slf4j"          % "slf4j-simple"          % "1.7.21", // "1.6.4"
-      "org.apache.kafka"   % "kafka-clients"         % "0.10.1.0",
+      "org.slf4j"           % "slf4j-simple"          % "1.7.21", // "1.6.4"
+      "org.apache.kafka"    % "kafka-clients"         % "0.10.1.0",
 //      "com.typesafe.akka"  %% "akka-stream"          % "2.5.18",
-      "com.google.transit" % "gtfs-realtime-bindings" % "0.0.4",
+      "com.google.transit"  % "gtfs-realtime-bindings" % "0.0.4",
 
       // https://mvnrepository.com/artifact/com.googlecode.protobuf-java-format/protobuf-java-format
 //        "com.googlecode.protobuf-java-format" % "protobuf-java-format" % "1.2",
-      "com.google.protobuf" % "protobuf-java"       % "3.6.1",
-      "com.google.protobuf" % "protobuf-java-util"  % "3.6.1" // for JsonFormat
+//      "com.google.protobuf" % "protobuf-java"       % "3.6.1",
+//      "com.google.protobuf" % "protobuf-java-util"  % "3.6.1" // for JsonFormat
+
+      "org.zeromq"          % "jeromq"                % "0.4.0"
     )
   )
 
-//cancelable in Global := true
-
-//resolvers += "Sonatype (releases)" at "https://oss.sonatype.org/content/repositories/releases/"
-//libraryDependencies += "org.zeromq" % "zeromq-scala-binding_2.11.0-M3" % "0.0.7"
-
+cancelable in Global := true
