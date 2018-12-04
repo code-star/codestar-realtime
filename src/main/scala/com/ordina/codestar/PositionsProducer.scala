@@ -1,12 +1,12 @@
 package com.ordina.codestar
 
-import java.util.{Calendar, Properties}
+import java.util.{ Calendar, Properties }
 
 import com.typesafe.config.ConfigFactory
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
+import org.apache.kafka.clients.producer.{ KafkaProducer, ProducerConfig, ProducerRecord }
+import org.apache.kafka.common.serialization.{ ByteArraySerializer, StringSerializer }
 import com.ordina.codestar.data.VehiclesReader
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
 class PositionsProducer(brokers: String, topic: String, feedUrl: String) {
 
@@ -23,7 +23,7 @@ class PositionsProducer(brokers: String, topic: String, feedUrl: String) {
   }
 
   def sendPeriodically(millis: Int = 1000): Unit = {
-    while(true) {
+    while (true) {
       sendOnce()
       Thread.sleep(millis)
     }
@@ -36,10 +36,10 @@ class PositionsProducer(brokers: String, topic: String, feedUrl: String) {
     records.foreach(producer.send)
     producer.flush()
 
-//    all.filter{ case (id,_) => id.startsWith("2018-12-03:QBUZZ:u008:1080") }
-//    all.filter{ case (id,v) => v.getVehicle.getVehicle.getLabel == "4122" }
-//      .map { case (id, vehicle) => (id, vehicle.getVehicle.getPosition )}
-//      .foreach(println)
+    //    all.filter{ case (id,_) => id.startsWith("2018-12-03:QBUZZ:u008:1080") }
+    //    all.filter{ case (id,v) => v.getVehicle.getVehicle.getLabel == "4122" }
+    //      .map { case (id, vehicle) => (id, vehicle.getVehicle.getPosition )}
+    //      .foreach(println)
 
     println(s"data size sent: ${records.size}") // at ${Calendar.getInstance().toString}")
   }

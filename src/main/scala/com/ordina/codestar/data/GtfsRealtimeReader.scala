@@ -8,7 +8,7 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage
 
 import scala.collection.mutable
 
-class GtfsRealtimeReader (feederUrl: String) {
+class GtfsRealtimeReader(feederUrl: String) {
 
   private val url = new URL(feederUrl)
   protected val feed: FeedMessage = FeedMessage.parseFrom(url.openStream)

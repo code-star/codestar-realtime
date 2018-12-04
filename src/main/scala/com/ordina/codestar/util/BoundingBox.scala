@@ -15,6 +15,6 @@ case class BoundingBox(north: Double, east: Double, south: Double, west: Double)
 
 object BoundingBox {
 
-  val somewhereInUtrecht = BoundingBox(52.10057991947965,5.166184343397618,52.07639948922387,5.094086565077306)
+  val somewhereInUtrecht = BoundingBox(52.10057991947965, 5.166184343397618, 52.07639948922387, 5.094086565077306)
 
 }

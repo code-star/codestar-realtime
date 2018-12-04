@@ -8,15 +8,15 @@
 - Trains: https://developer.ns.nl
 - Various: https://www.pubnub.com/developers/realtime-data-streams/
 - Finance
-- updates, events, ...
 - Satellites: https://www.n2yo.com/
 - NASA: https://open.nasa.gov/blog/the-open-api-universe-at-nasa/
-- Flights: https://developer.flightstats.com/api-docs/flightstatus/v2
+- Flights: https://developer.flightstats.com/api-docs/flightstatus/v2 (30 days trial period)
 - Social media
     - Twitter
     - Foursquare: https://developer.foursquare.com/docs
     - Facebook
     - http://socialmention.com/
+- Bicycle parking: https://openbike.nl, https://haverman.com
     
 ### OpenOV
 - Realtime data for buses

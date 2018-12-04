@@ -14,5 +14,4 @@ class VehiclesReader(url: String) extends GtfsRealtimeReader(url) {
       .map(entity => (entity.getId, entity))
   }
 
-
 }

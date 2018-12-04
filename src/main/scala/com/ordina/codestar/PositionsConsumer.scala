@@ -2,11 +2,11 @@ package com.ordina.codestar
 
 import java.util.Properties
 
-import com.google.transit.realtime.GtfsRealtime.{FeedEntity, Position}
+import com.google.transit.realtime.GtfsRealtime.{ FeedEntity, Position }
 
 import scala.collection.JavaConverters._
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
+import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecords, KafkaConsumer }
+import org.apache.kafka.common.serialization.{ ByteArrayDeserializer, StringDeserializer }
 
 class PositionsConsumer(brokers: String, topic: String, groupId: String) {
 
@@ -23,7 +23,7 @@ class PositionsConsumer(brokers: String, topic: String, groupId: String) {
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
     props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, fetch_max_bytes) // largest size of a message that can be fetched
     props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
-    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false)
+    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
     props
   }
 
@@ -38,7 +38,7 @@ class PositionsConsumer(brokers: String, topic: String, groupId: String) {
       .mapValues(FeedEntity.parseFrom)
 
     val map = entities
-      .filter{ case (_,e) => e.hasVehicle }
+      .filter { case (_, e) => e.hasVehicle }
       .mapValues(_.getVehicle)
       .filter { case (_, vehicle) => vehicle.hasPosition }
       .mapValues(_.getPosition)

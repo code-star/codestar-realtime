@@ -11,31 +11,31 @@ class PositionsMap(protected val map: Map[String, Position]) {
     new PositionsMap(m)
   }
 
-//  def toJson: JsValue = {
-//    //    val elements =
-//    //      for (
-//    //        (id: String, e: FeedEntity) <- fetch();
-//    //        vehicle: VehiclePosition <- e.getVehicle if e.hasVehicle;
-//    //        position <- vehicle.getPosition if vehicle.hasPosition
-//    //      ) yield (id, position)
-//
-//    val elements = map
-//      .map { case (id, pos) =>
-//        s"""{
-//           |  "type":"node",
-//           |  "id":"$id",
-//           |  "lat":${pos.getLatitude},
-//           |  "lon":${pos.getLongitude},
-//           |  "tags":{
-//           |    "id":"$id"
-//           |  }
-//           |}""".stripMargin
-//      }
-//
-//    val dataString = "{ \"elements\": [\n" + elements.mkString(", ") + "\n] }"
-//    Json.parse(dataString)
-//
-//  }
+  //  def toJson: JsValue = {
+  //    //    val elements =
+  //    //      for (
+  //    //        (id: String, e: FeedEntity) <- fetch();
+  //    //        vehicle: VehiclePosition <- e.getVehicle if e.hasVehicle;
+  //    //        position <- vehicle.getPosition if vehicle.hasPosition
+  //    //      ) yield (id, position)
+  //
+  //    val elements = map
+  //      .map { case (id, pos) =>
+  //        s"""{
+  //           |  "type":"node",
+  //           |  "id":"$id",
+  //           |  "lat":${pos.getLatitude},
+  //           |  "lon":${pos.getLongitude},
+  //           |  "tags":{
+  //           |    "id":"$id"
+  //           |  }
+  //           |}""".stripMargin
+  //      }
+  //
+  //    val dataString = "{ \"elements\": [\n" + elements.mkString(", ") + "\n] }"
+  //    Json.parse(dataString)
+  //
+  //  }
 
   def update(more: Map[String, Position]) = new PositionsMap(map ++ more)
 }
