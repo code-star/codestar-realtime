@@ -66,7 +66,7 @@ services:
       - kafka_broker_1
       - kafka_broker_2
     ports:
-      - "8081:8081"
+      - "8085:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema_registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
@@ -81,7 +81,7 @@ services:
     environment:
       KAFKA_REST_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_REST_LISTENERS: 'http://0.0.0.0:8082'
-      KAFKA_REST_SCHEMA_REGISTRY_URL: 'schema_registry:8081'
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'schema_registry:8085'
       KAFKA_REST_HOST_NAME: 'localhost'
 
   kafka_topics_ui_local:

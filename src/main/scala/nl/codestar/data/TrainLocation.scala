@@ -1,9 +1,8 @@
 package nl.codestar.data
 
-import spray.json.{DefaultJsonProtocol, JsonFormat}
+import spray.json.DefaultJsonProtocol
 
-import scala.xml.{Node, NodeSeq}
-
+import scala.xml.{ Node, NodeSeq }
 
 /**
  * Data from NDOV-loket, port 7664, envelope /RIG/NStreinpositiesInterface5
@@ -74,20 +73,6 @@ object MaterialPart extends DefaultJsonProtocol {
   }
 
 }
-
-/**
-  * Provide JsonFormats for our case classes; all other JsonFormats are implicit.
-  * lazyFormat was needed beacuse of a NullPointerException
-  * See: https://github.com/spray/spray-json
-  */
-object TrainLocationsJsonProtocol extends DefaultJsonProtocol {
-
-  implicit val trainLocationsFormat: JsonFormat[TrainLocations] = lazyFormat(jsonFormat1(TrainLocations.apply))
-  implicit val trainLocationFormat: JsonFormat[TrainLocation] = lazyFormat(jsonFormat2(TrainLocation.apply))
-  implicit val materialPartFormat: JsonFormat[MaterialPart] = lazyFormat(jsonFormat14(MaterialPart.apply))
-
-}
-
 
 // XML example:
 //"""

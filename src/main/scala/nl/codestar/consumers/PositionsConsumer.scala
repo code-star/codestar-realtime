@@ -1,12 +1,12 @@
-package nl.codestar
+package nl.codestar.consumers
 
 import java.util.Properties
 
 import com.google.transit.realtime.GtfsRealtime.{ FeedEntity, Position }
-
-import scala.collection.JavaConverters._
 import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecords, KafkaConsumer }
 import org.apache.kafka.common.serialization.{ ByteArrayDeserializer, StringDeserializer }
+
+import scala.collection.JavaConverters._
 
 class PositionsConsumer(brokers: String, topic: String, groupId: String) {
 

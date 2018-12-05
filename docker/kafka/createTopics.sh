@@ -8,4 +8,5 @@ prefix="local"
 # brokers
 kafkaHome=$thisDir/kafka_2.12-2.1.0
 $kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 9 --replication-factor 1 --topic $prefix.bus-positions
+$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 9 --replication-factor 1 --topic $prefix.ns-trains-positions
 

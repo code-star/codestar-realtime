@@ -118,66 +118,66 @@ class OVLoketConnection(url: String = "pubsub.besteffort.ndovloket.nl", port: In
 /**
  * This App will print the details of one train location.
  */
-object OVLoketConnection extends App {
-
-  val loket = new OVLoketConnection(port = 7664) // NS InfoPlus DVS-PPV
-  loket.subscribe(List("/RIG/NStreinpositiesInterface5"))
-  //  val envelopesInfoPlus = Seq(
-  //    "/RIG/InfoPlusDVSInterface4",
-  //    "/RIG/InfoPlusPILInterface5",
-  //    "/RIG/InfoPlusPISInterface5",
-  //    "/RIG/InfoPlusVTBLInterface5",
-  //    "/RIG/InfoPlusVTBSInterface5",
-  //    "/RIG/NStreinpositiesInterface5"
-  //  )
-  //  loket.subscribe(envelopesInfoPlus)
-
-  //  while (true) {
-  println(s"Receiving...")
-  val (msgType, xml) = loket.readNext
-
-  val locations = TrainLocations.fromXMl(xml)
-  println(locations)
-
-//  import TrainLocationsJsonProtocol._
-//  import spray.json._
-//  println(locations.toJson)
-
-  loket.close()
-  //    Thread.sleep(1000)
-  //  }
-
-  /**
-   * A train location is composed of a Train Number and one or more Train Material Parts (see example below).
-   * A Train Material Part is composed of the following elements:
-   *   "MaterieelDeelNummer:Materieelvolgnummer:GpsDatumTijd:Orientatie:Bron:Fix:Berichttype:Longitude:Latitude:Elevation:Snelheid:Richting:Hdop:AantalSatelieten"
-   * In English: Material Part Number: Material sequence number: GPS DateTime: Orientation: Source: Fix: Message type: Longitude: Latitude: Elevation: Speed: Direction: Hdop: NumberSatelites
-   *
-   * @param location A train location
-   * @return
-   */
-  def getTrainLocationInfo(location: Node) = {
-    val cs: NodeSeq = location.child
-    val number = cs.head
-    val parts = cs.tail
-    val partsDetails = parts
-      .map(p => (p.label, p.child))
-      .map { case (label, details) => (label, details.map(d => (d.label, d.text))) }
-    (number.text, partsDetails)
-  }
-
-  def getTrainLocation(location: Node) = {
-    val cs: NodeSeq = location.child
-    val number = cs.head
-    val firstPart = cs.tail.head
-    val lat: String = firstPart.child.filter(_.label == "Latitude").head.text
-    val lon: String = firstPart.child.filter(_.label == "Longitude").head.text
-    (number.text, List(lat, lon))
-  }
-
-  def printTrainLocation(train: Node): Unit = {
-    val (number, parts) = getTrainLocation(train)
-    println(s"#$number: ${parts.mkString(":")}")
-  }
-
-}
+//object OVLoketConnection extends App {
+//
+//  val loket = new OVLoketConnection(port = 7664) // NS InfoPlus DVS-PPV
+//  loket.subscribe(List("/RIG/NStreinpositiesInterface5"))
+//  //  val envelopesInfoPlus = Seq(
+//  //    "/RIG/InfoPlusDVSInterface4",
+//  //    "/RIG/InfoPlusPILInterface5",
+//  //    "/RIG/InfoPlusPISInterface5",
+//  //    "/RIG/InfoPlusVTBLInterface5",
+//  //    "/RIG/InfoPlusVTBSInterface5",
+//  //    "/RIG/NStreinpositiesInterface5"
+//  //  )
+//  //  loket.subscribe(envelopesInfoPlus)
+//
+//  //  while (true) {
+//  println(s"Receiving...")
+//  val (msgType, xml) = loket.readNext
+//
+//  val locations = TrainLocations.fromXMl(xml)
+//  println(locations)
+//
+////  import TrainLocationsJsonProtocol._
+////  import spray.json._
+////  println(locations.toJson)
+//
+//  loket.close()
+//  //    Thread.sleep(1000)
+//  //  }
+//
+//  /**
+//   * A train location is composed of a Train Number and one or more Train Material Parts (see example below).
+//   * A Train Material Part is composed of the following elements:
+//   *   "MaterieelDeelNummer:Materieelvolgnummer:GpsDatumTijd:Orientatie:Bron:Fix:Berichttype:Longitude:Latitude:Elevation:Snelheid:Richting:Hdop:AantalSatelieten"
+//   * In English: Material Part Number: Material sequence number: GPS DateTime: Orientation: Source: Fix: Message type: Longitude: Latitude: Elevation: Speed: Direction: Hdop: NumberSatelites
+//   *
+//   * @param location A train location
+//   * @return
+//   */
+//  def getTrainLocationInfo(location: Node) = {
+//    val cs: NodeSeq = location.child
+//    val number = cs.head
+//    val parts = cs.tail
+//    val partsDetails = parts
+//      .map(p => (p.label, p.child))
+//      .map { case (label, details) => (label, details.map(d => (d.label, d.text))) }
+//    (number.text, partsDetails)
+//  }
+//
+//  def getTrainLocation(location: Node) = {
+//    val cs: NodeSeq = location.child
+//    val number = cs.head
+//    val firstPart = cs.tail.head
+//    val lat: String = firstPart.child.filter(_.label == "Latitude").head.text
+//    val lon: String = firstPart.child.filter(_.label == "Longitude").head.text
+//    (number.text, List(lat, lon))
+//  }
+//
+//  def printTrainLocation(train: Node): Unit = {
+//    val (number, parts) = getTrainLocation(train)
+//    println(s"#$number: ${parts.mkString(":")}")
+//  }
+//
+//}
