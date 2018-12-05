@@ -16,11 +16,9 @@ package nl.codestar.data
 
 import java.io.ByteArrayInputStream
 import java.util.zip.GZIPInputStream
-
 import org.zeromq.{ ZMQ, ZMsg }
 
-import scala.xml.{ Elem, Node }
-import scala.xml.factory.XMLLoader
+import scala.xml._
 
 class OVLoketConnection(url: String = "pubsub.besteffort.ndovloket.nl", port: Int, envelopes: Iterable[String] = Iterable.empty) {
 
@@ -38,44 +36,26 @@ class OVLoketConnection(url: String = "pubsub.besteffort.ndovloket.nl", port: In
     this.subscribe(List(envelope))
   }
 
+  /**
+   * @return the message type and the message content as an XML
+   */
   def readNext: (String, Node) = {
     val msg = ZMsg.recvMsg(subscriber)
     val msgType = msg.pop.toString
     val rawContent = msg.pop.getData
     val content = unzip(rawContent)
-    val xml = getXmlNodeFrom(content)
+    val xml = scala.xml.XML.loadString(content)
     (msgType, xml)
-  }
-
-  private def unzip(xs: Array[Byte]): String = {
-    val inputStream = new GZIPInputStream(new ByteArrayInputStream(xs))
-    scala.io.Source.fromInputStream(inputStream).mkString
-  }
-
-  private def getXmlNodeFrom(str: String): Node = {
-    //    val schemaLang = javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI
-    //    val xsdFile = java.nio.file.Paths.get("sitemap-v0.9.xsd")
-    //    val readOnly = java.nio.file.StandardOpenOption.READ
-    //    val inputStream = java.nio.file.Files.newInputStream(xsdFile, readOnly)
-    //    val xsdStream = new javax.xml.transform.stream.StreamSource(inputStream)
-    //    val schema = javax.xml.validation.SchemaFactory.newInstance(schemaLang).newSchema(xsdStream)
-
-    val factory = javax.xml.parsers.SAXParserFactory.newInstance()
-    factory.setNamespaceAware(true)
-    //    factory.setSchema(schema)
-    val validatingParser = factory.newSAXParser()
-    val loader: XMLLoader[Elem] = new scala.xml.factory.XMLLoader[scala.xml.Elem] {
-      override def parser = validatingParser
-      override def adapter =
-        new scala.xml.parsing.NoBindingFactoryAdapter with scala.xml.parsing.ConsoleErrorHandler
-
-    }
-    loader.loadString(str)
   }
 
   def close(): Unit = {
     subscriber.close()
     context.close()
+  }
+
+  private def unzip(xs: Array[Byte]): String = {
+    val inputStream = new GZIPInputStream(new ByteArrayInputStream(xs))
+    scala.io.Source.fromInputStream(inputStream).mkString
   }
 
 }
@@ -123,7 +103,8 @@ class OVLoketConnection(url: String = "pubsub.besteffort.ndovloket.nl", port: In
 
 /**
  * InfoPlus DVS
- * URI: tcp://pubsub.besteffort.ndovloket.nl:7664/
+ * InfoPlus DVS is a message service from the Dutch Railways containing live departure times.
+ * URI: tcp://pubsub.besteffort.ndovloket.nl:7664
  *
  * Bekende envelopes:
  * /RIG/InfoPlusDVSInterface4 (DVS PPV)
@@ -154,9 +135,14 @@ object OVLoketConnection extends App {
   //  while (true) {
   println(s"Receiving...")
   val (msgType, xml) = loket.readNext
-  val trainLocations: Seq[Node] = xml.child
-  println(s"Message type: $msgType, content size: ${trainLocations.length}")
-  trainLocations.foreach(printTrainLocation)
+
+  val locations = TrainLocations.fromXMl(xml)
+  println(locations)
+
+//  import TrainLocationsJsonProtocol._
+//  import spray.json._
+//  println(locations.toJson)
+
   loket.close()
   //    Thread.sleep(1000)
   //  }
@@ -171,7 +157,7 @@ object OVLoketConnection extends App {
    * @return
    */
   def getTrainLocationInfo(location: Node) = {
-    val cs: Seq[Node] = location.child
+    val cs: NodeSeq = location.child
     val number = cs.head
     val parts = cs.tail
     val partsDetails = parts
@@ -181,7 +167,7 @@ object OVLoketConnection extends App {
   }
 
   def getTrainLocation(location: Node) = {
-    val cs: Seq[Node] = location.child
+    val cs: NodeSeq = location.child
     val number = cs.head
     val firstPart = cs.tail.head
     val lat: String = firstPart.child.filter(_.label == "Latitude").head.text
@@ -194,42 +180,4 @@ object OVLoketConnection extends App {
     println(s"#$number: ${parts.mkString(":")}")
   }
 
-  private val trainLocationExample =
-    """
-      |  <tns3:TreinLocation>
-      |    <tns3:TreinNummer>11654</tns3:TreinNummer>
-      |    <tns3:TreinMaterieelDelen>
-      |      <tns3:MaterieelDeelNummer>4029</tns3:MaterieelDeelNummer>
-      |      <tns3:Materieelvolgnummer>1</tns3:Materieelvolgnummer>
-      |      <tns3:GpsDatumTijd>2018-12-04T15:27:24Z</tns3:GpsDatumTijd>
-      |      <tns3:Orientatie>0</tns3:Orientatie>
-      |      <tns3:Bron>NTT</tns3:Bron>
-      |      <tns3:Fix>1</tns3:Fix>
-      |      <tns3:Berichttype/>
-      |      <tns3:Longitude>5.15445183333</tns3:Longitude>
-      |      <tns3:Latitude>52.2854896667</tns3:Latitude>
-      |      <tns3:Elevation>0.0</tns3:Elevation>
-      |      <tns3:Snelheid>52.0</tns3:Snelheid>
-      |      <tns3:Richting>326.17</tns3:Richting>
-      |      <tns3:Hdop>0</tns3:Hdop>
-      |      <tns3:AantalSatelieten>12</tns3:AantalSatelieten>
-      |    </tns3:TreinMaterieelDelen>
-      |    <tns3:TreinMaterieelDelen>
-      |      <tns3:MaterieelDeelNummer>4052</tns3:MaterieelDeelNummer>
-      |      <tns3:Materieelvolgnummer>2</tns3:Materieelvolgnummer>
-      |      <tns3:GpsDatumTijd>2018-12-04T15:27:23Z</tns3:GpsDatumTijd>
-      |      <tns3:Orientatie>0</tns3:Orientatie>
-      |      <tns3:Bron>NTT</tns3:Bron>
-      |      <tns3:Fix>1</tns3:Fix>
-      |      <tns3:Berichttype/>
-      |      <tns3:Longitude>5.155177</tns3:Longitude>
-      |      <tns3:Latitude>52.284753</tns3:Latitude>
-      |      <tns3:Elevation>0.0</tns3:Elevation>
-      |      <tns3:Snelheid>52.0</tns3:Snelheid>
-      |      <tns3:Richting>330.54</tns3:Richting>
-      |      <tns3:Hdop>0</tns3:Hdop>
-      |      <tns3:AantalSatelieten>12</tns3:AantalSatelieten>
-      |    </tns3:TreinMaterieelDelen>
-      |  </tns3:TreinLocation>
-    """.stripMargin
 }
