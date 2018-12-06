@@ -8,7 +8,7 @@ open http://localhost:8000
 
 # Requirements:
 - [Docker](https://docs.docker.com/install/)
--  [jq](https://stedolan.github.io/jq/) (`brew install jq`)
+- [jq](https://stedolan.github.io/jq/) (`brew install jq`)
 
 ## run `download-kafka-client.sh`
 This will download the kafka client we will need to interact with Kafka from the command-line.
@@ -24,7 +24,9 @@ In this YAML the following services are defined:
 The script will wait until Kafka is up, by checking if `_schema` is present in the JSON when calling the Kafka REST API on `localhost:8082/topics`. 
 We use [jq](https://stedolan.github.io/jq/) to do command line json parsing.
 
-Finally it will call the `createTopics.sh` script to create the `local.bus-positions` and `local.ns-trains-positions` topics.
+Finally it will call the `createTopics.sh` script to create 
+the `local.bus-positions`, `local.ns-trains-positions` 
+and `local.all-positions` topics.
 
 You can then browse to [localhost:8000](http://localhost:8000) to view the Kafka Topics UI.
 
