@@ -1,9 +1,9 @@
 package nl.codestar.producers
 
 import collection.JavaConverters._
-import nl.codestar.data.{ DataSource, OVLoketReader }
+import nl.codestar.data.{ DataSourceGenerator, OVLoketGenerator }
 
-class TrainLocationProducer(topic: String, dataSource: DataSource)
+class TrainLocationProducer(topic: String, dataSource: DataSourceGenerator)
   extends GenericProducer(topic, dataSource)
 
 object TrainLocationProducer extends App {
@@ -13,7 +13,7 @@ object TrainLocationProducer extends App {
   val port = config.getInt("feeds.ovloket.ns.port")
   val envelopes = config.getStringList("feeds.ovloket.ns.envelopes").asScala.toSeq
 
-  val dataSource = new OVLoketReader(port, envelopes)
+  val dataSource = new OVLoketGenerator(port, envelopes)
   val vehiclesProducer = new TrainLocationProducer(topic, dataSource)
   logger.info(s"Connected to TrainLocationProducer($topic, $port, $envelopes)")
 

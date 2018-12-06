@@ -20,7 +20,7 @@ import org.zeromq.{ ZMQ, ZMsg }
 
 import scala.xml._
 
-class OVLoketConnection(url: String = "pubsub.besteffort.ndovloket.nl", port: Int, envelopes: Iterable[String] = Iterable.empty) {
+class OVLoketConnection(port: Int, envelopes: Iterable[String] = Iterable.empty, url: String = "pubsub.besteffort.ndovloket.nl") {
 
   private val context = ZMQ.context(1)
   private val subscriber = context.socket(ZMQ.SUB)

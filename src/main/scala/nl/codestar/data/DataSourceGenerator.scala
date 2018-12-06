@@ -1,6 +1,6 @@
 package nl.codestar.data
 
-trait DataSource {
+trait DataSourceGenerator {
 
   /**
    * Polling from a feed returns a list of ids and a content as an array of bytes.

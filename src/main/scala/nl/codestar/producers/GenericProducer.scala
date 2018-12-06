@@ -1,14 +1,14 @@
 package nl.codestar.producers
 
-import java.util.{ Calendar, Properties }
+import java.util.{Calendar, Properties}
 
-import com.typesafe.config.ConfigFactory
-import nl.codestar.data.DataSource
-import org.apache.kafka.clients.producer.{ KafkaProducer, ProducerConfig, ProducerRecord }
-import org.apache.kafka.common.serialization.{ ByteArraySerializer, StringSerializer }
-import org.slf4j.{ Logger, LoggerFactory }
+import com.typesafe.config.{Config, ConfigFactory}
+import nl.codestar.data.DataSourceGenerator
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
+import org.slf4j.{Logger, LoggerFactory}
 
-class GenericProducer(topic: String, source: DataSource) {
+class GenericProducer(topic: String, source: DataSourceGenerator) {
   import GenericProducer._
 
   val max_request_size: String = (5 * 1024 * 1024).toString
@@ -33,7 +33,7 @@ class GenericProducer(topic: String, source: DataSource) {
 
   def sendOnce(): Unit = {
     val all = source.poll()
-    val records = all.map { case (id, content) => new ProducerRecord[String, Array[Byte]](topic, id, content) }
+    val records = all.map { case (id, content) => new ProducerRecord(topic, id, content) }
     records.foreach(producer.send)
     producer.flush()
     logger.info(s"data size sent: ${records.size} at ${Calendar.getInstance().getTime}")
@@ -50,9 +50,9 @@ object GenericProducer {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  val config = ConfigFactory.load()
+  val config: Config = ConfigFactory.load()
 
-  val brokers = config.getString("kafka.brokers")
+  val brokers: String = config.getString("kafka.brokers")
 
 }
 

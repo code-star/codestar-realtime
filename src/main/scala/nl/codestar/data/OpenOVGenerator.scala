@@ -8,7 +8,7 @@ import com.google.transit.realtime.GtfsRealtime.FeedMessage
 
 import scala.collection.mutable
 
-class OpenOVReader(feederUrl: String) extends DataSource {
+class OpenOVGenerator(feederUrl: String) extends DataSourceGenerator {
 
   private val url = new URL(feederUrl)
   protected val feed: FeedMessage = FeedMessage.parseFrom(url.openStream)

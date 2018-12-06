@@ -1,12 +1,12 @@
 package nl.codestar.util
 
-import com.google.transit.realtime.GtfsRealtime
+import nl.codestar.data.Position
 
 case class BoundingBox(north: Double, east: Double, south: Double, west: Double) {
 
-  def contains(pos: GtfsRealtime.Position): Boolean = {
-    val lat = pos.getLatitude
-    val lon = pos.getLongitude
+  def contains(pos: Position): Boolean = {
+    val lat = pos.latitude
+    val lon = pos.longitude
     south <= lat && lat <= north &&
       west <= lon && lon <= east
   }
