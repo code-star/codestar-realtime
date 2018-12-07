@@ -10,10 +10,11 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.slf4j.{Logger, LoggerFactory}
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class GenericProducer(topic: String, source: DataSourceGenerator)(implicit materializer: Materializer) {
+class GenericProducer(topic: String, source: DataSourceGenerator)(implicit materializer: Materializer, ec: ExecutionContext) {
 
   import GenericProducer._
 

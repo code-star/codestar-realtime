@@ -1,13 +1,16 @@
 package nl.codestar.consumers.positions
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
 import nl.codestar.data.{Position, VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 import spray.json._
 import DefaultJsonProtocol._
+import akka.stream.Materializer
 
 object PositionsActor {
   final case class GetLocationsByBox(box: BoundingBox)
+  case class UpdatePosition(id: String, vehicleInfo: VehicleInfo)
+  case object Stop
 
 // TODO:
 //  final case class GetLocationsByDistance(pos: Position, distance: Double)
@@ -16,11 +19,14 @@ object PositionsActor {
   def props: Props = Props[PositionsActor]
 }
 
-class PositionsActor(topic: String, groupId: String)
+/**
+  * Keeps track of latest vehicle info, processes updates and allows querying by bounding box
+  */
+class PositionsActor(topic: String, groupId: String)(implicit actorSystem: ActorSystem, materializer: Materializer)
   extends Actor with ActorLogging with VehicleDisplayInfoJsonSupport {
   import PositionsActor._
 
-  private val consumer = new PositionsConsumer(topic, groupId)
+  private val consumer = new PositionsConsumer(topic, receiver = self)
 
   /**
     * Cache of latest info for each id.
@@ -28,13 +34,17 @@ class PositionsActor(topic: String, groupId: String)
   private var lastInfoCache = Map.empty[String, VehicleInfo]
 
   def receive: Receive = {
+    case UpdatePosition(id, vehicleInfo) =>
+      lastInfoCache = lastInfoCache + (id -> vehicleInfo)
+
     case GetLocationsByBox(box) =>
-      val newData = consumer.poll()
-      lastInfoCache = lastInfoCache ++ newData
       val positionsInBox = lastInfoCache
         .filter { case (_, info) => box.contains(Position(info.latitude,info.longitude)) }
         .map { case (k,v) => VehicleDisplayInfo.fromInfo(k,v) }.toSeq
       sender ! positionsInBox.toJson
+
+    case Stop =>
+      consumer.close() // TODO await and log
   }
 }
 

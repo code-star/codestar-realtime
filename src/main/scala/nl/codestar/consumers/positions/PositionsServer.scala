@@ -7,14 +7,14 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.ExecutionContext
 import scala.io.StdIn
 
 object PositionsServer extends App with PositionsRoutes {
 
   implicit val system: ActorSystem = ActorSystem("positionsAkkaHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher // needed for the future map/flatmap
+  implicit val executionContext: ExecutionContext = system.dispatcher // needed for the future map/flatmap
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
   val config: Config = ConfigFactory.load()
