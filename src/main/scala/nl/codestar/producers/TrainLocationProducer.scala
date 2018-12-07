@@ -1,13 +1,19 @@
 package nl.codestar.producers
 
-import collection.JavaConverters._
-import nl.codestar.data.{ DataSourceGenerator, OVLoketGenerator }
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
 
-class TrainLocationProducer(topic: String, dataSource: DataSourceGenerator)
+import collection.JavaConverters._
+import nl.codestar.data.{DataSourceGenerator, OVLoketGenerator}
+
+class TrainLocationProducer(topic: String, dataSource: DataSourceGenerator)(implicit materializer: Materializer)
   extends GenericProducer(topic, dataSource)
 
 object TrainLocationProducer extends App {
   import GenericProducer._
+
+  implicit val actorSystem: ActorSystem = ActorSystem()
+  implicit val materializer: Materializer = ActorMaterializer()
 
   val topic = config.getString("feeds.ovloket.ns.topic")
   val port = config.getInt("feeds.ovloket.ns.port")

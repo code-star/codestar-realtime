@@ -1,12 +1,17 @@
 package nl.codestar.producers
 
-import nl.codestar.data.{ DataSourceGenerator, OpenOVGenerator }
+import akka.actor.ActorSystem
+import akka.stream.{ActorMaterializer, Materializer}
+import nl.codestar.data.{DataSourceGenerator, OpenOVGenerator}
 
-class OpenOVPositionsProducer(topic: String, dataSource: DataSourceGenerator)
+class OpenOVPositionsProducer(topic: String, dataSource: DataSourceGenerator)(implicit materializer: Materializer)
   extends GenericProducer(topic, dataSource)
 
 object OpenOVPositionsProducer extends App {
   import GenericProducer._
+
+  implicit val actorSystem: ActorSystem = ActorSystem()
+  implicit val materializer: Materializer = ActorMaterializer()
 
   val openovFeedUrl = config.getString("feeds.openov.vehiclePositions.url")
   val topic = config.getString("feeds.openov.vehiclePositions.topic")
