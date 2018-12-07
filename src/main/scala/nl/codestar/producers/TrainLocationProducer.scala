@@ -11,7 +11,7 @@ object TrainLocationProducer extends App {
 
   val topic = config.getString("feeds.ovloket.ns.topic")
   val port = config.getInt("feeds.ovloket.ns.port")
-  val envelopes = config.getStringList("feeds.ovloket.ns.envelopes").asScala.toSeq
+  val envelopes = config.getStringList("feeds.ovloket.ns.envelopes").asScala
 
   val dataSource = new OVLoketGenerator(port, envelopes)
   val vehiclesProducer = new TrainLocationProducer(topic, dataSource)
@@ -19,5 +19,4 @@ object TrainLocationProducer extends App {
 
   vehiclesProducer.sendPeriodically(1000)
   vehiclesProducer.close()
-
 }

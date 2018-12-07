@@ -2,15 +2,17 @@ package nl.codestar.data
 
 import spray.json.DefaultJsonProtocol
 
-case class VehicleInfo(latitude: Double, longitude: Double, time: Long) extends Ordered[VehicleInfo] {
+case class VehicleInfo
+  (latitude: Double,
+   longitude: Double,
+   time: Long
+  ) extends Ordered[VehicleInfo] {
 
   override def compare(that: VehicleInfo): Int = this.time compare that.time
 
 }
 
 object VehicleInfo extends DefaultJsonProtocol {
-
-  val utrechtCentraal = Position(52.0894444,5.1077981)
 
   /**
     * Converts time formats.

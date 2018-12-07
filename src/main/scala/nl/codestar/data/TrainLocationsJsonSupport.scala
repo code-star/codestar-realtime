@@ -5,7 +5,7 @@ import spray.json.{ DefaultJsonProtocol, JsonFormat }
 
 /**
  * Provide JsonFormats for our case classes in TrainLocations; all other JsonFormats (fdr Int, List, etc) are implicit.
- * lazyFormat was needed because of a NullPointerException.
+ * lazyFormat was needed because of a NullPointerException (some recursive type?).
  * See: https://github.com/spray/spray-json
  */
 trait TrainLocationsJsonSupport extends SprayJsonSupport {

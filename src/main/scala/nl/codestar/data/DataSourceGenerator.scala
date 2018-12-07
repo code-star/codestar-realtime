@@ -1,5 +1,8 @@
 package nl.codestar.data
 
+/**
+  * A source of data from where we can poll.
+  */
 trait DataSourceGenerator {
 
   /**
