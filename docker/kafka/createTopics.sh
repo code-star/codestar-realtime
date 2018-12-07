@@ -7,7 +7,7 @@ prefix="local"
 # for comparison: We chose 9 since that is a multiple of the nr of brokers which distributes out the work across the
 # brokers
 kafkaHome=$thisDir/kafka_2.12-2.1.0
-$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 9 --replication-factor 1 --topic $prefix.bus-positions
-$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 9 --replication-factor 1 --topic $prefix.ns-trains-positions
-$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 9 --replication-factor 1 --topic $prefix.all-positions
+$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic $prefix.bus-positions
+$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic $prefix.ns-trains-positions
+$kafkaHome/bin/kafka-topics.sh --zookeeper localhost:2181 --create --partitions 1 --replication-factor 1 --topic $prefix.all-positions
 
