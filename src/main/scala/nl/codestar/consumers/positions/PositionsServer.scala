@@ -21,7 +21,8 @@ object PositionsServer extends App with PositionsRoutes {
 
   private val topic = PositionsServer.config.getString("feeds.ovloket.ns.topic")
   private val groupId = PositionsServer.config.getString("feeds.ovloket.ns.groupId")
-  def positionsActor: ActorRef = system.actorOf(Props(new PositionsActor(topic, groupId)), "positionsActor")
+
+  val positionsActor: ActorRef = system.actorOf(Props(new PositionsActor(topic, groupId)), "positionsActor")
 
   lazy val routes: Route = positionsRoutes // from the PositionsRoutes trait
 
@@ -33,6 +34,6 @@ object PositionsServer extends App with PositionsRoutes {
 
   bindingFuture
     .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ ⇒ system.terminate()) // and shutdown when done
+    .onComplete(_ => system.terminate()) // and shutdown when done
 
 }

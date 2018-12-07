@@ -1,24 +1,31 @@
 package nl.codestar.consumers.positions
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.{DefaultJsonProtocol, JsonFormat}
-import nl.codestar.data.{Position, VehicleInfo}
+import nl.codestar.data.{Position, VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 
-case class VehiclesMap(map: Map[String, VehicleInfo] = Map.empty[String, VehicleInfo]) {
+import scala.collection.mutable
 
-  def update(more: Map[String, VehicleInfo]) = new VehiclesMap(map ++ more)
+class VehiclesMap {
 
-  def garbageCollector(): VehiclesMap = {
+  type t = mutable.Map[String, VehicleInfo]
+
+  val map: t = mutable.Map.empty
+
+  def update(more: Map[String, VehicleInfo]): Unit = map ++= more
+
+  def garbageCollector(): t = {
     //TODO: remove from map those entries older that x minutes
-    new VehiclesMap(map)
+    map
   }
 
-  def filterByBoundingBox(box: BoundingBox): VehiclesMap = {
-    val m = map.filter { case (_, pos) => box.contains(Position(pos.latitude,pos.longitude)) }
+  def filterByBoundingBox(box: BoundingBox): t = {
+    val m = map.filter { case (_, info) => box.contains(Position(info.latitude,info.longitude)) }
     println(s"#after filter: ${m.values.size}")
-    new VehiclesMap(m)
+    m
   }
+
+  override def toString: String = map.toString
 
   //  def toJson: JsValue = {
   //    //    val elements =
@@ -48,22 +55,20 @@ case class VehiclesMap(map: Map[String, VehicleInfo] = Map.empty[String, Vehicle
 
 }
 
-object VehiclesMap extends DefaultJsonProtocol {
+trait VehiclesMapJsonSupport extends SprayJsonSupport with VehicleInfoJsonSupport {
+  import spray.json._
 
-//  type t = Map[String, Position]
+  implicit def VehiclesMapJsonFormat: JsonFormat[VehiclesMap] = new RootJsonFormat[VehiclesMap] {
 
-  def empty: VehiclesMap = new VehiclesMap(Map.empty[String, VehicleInfo])
+    def write(m: VehiclesMap): JsValue = JsObject(m.map.map{ case (k,v) => k -> v.toJson}.toSeq : _*)
 
-}
+    def read(value: JsValue): VehiclesMap = {
+      val m = value.asJsObject.fields.map { case (k, v) => k -> v.convertTo[VehicleInfo] }
+      val vm = new VehiclesMap()
+      vm.update(m)
+      vm
+    }
 
-import spray.json.DefaultJsonProtocol
-
-trait VehiclesMapJsonSupport extends SprayJsonSupport {
-
-  // import the default encoders for primitive types (Int, String, Lists, etc)
-  import DefaultJsonProtocol._
-
-  implicit val vehiclesMapFormat: JsonFormat[VehiclesMap] = lazyFormat(jsonFormat1(VehiclesMap.apply))
-  implicit val vehicleInfoFormat: JsonFormat[VehicleInfo] = lazyFormat(jsonFormat3(VehicleInfo.apply))
+  }
 
 }

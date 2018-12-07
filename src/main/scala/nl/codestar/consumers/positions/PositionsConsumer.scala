@@ -1,5 +1,6 @@
 package nl.codestar.consumers.positions
 
+import java.util
 import java.util.Properties
 
 import com.google.transit.realtime.GtfsRealtime
@@ -9,15 +10,15 @@ import com.google.transit.realtime.GtfsRealtime.FeedEntity
 import spray.json.JsonParser
 import nl.codestar.data.{VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.producers.GenericProducer
+import org.apache.kafka.common.TopicPartition
 
 import scala.collection.JavaConverters._
 
 class PositionsConsumer(topic: String, groupId: String) extends VehicleInfoJsonSupport {
 
-  private val fetch_max_bytes: String = (5 * 1024 * 1024).toString
-
   val consumer = new KafkaConsumer[String, Array[Byte]](configuration)
-  consumer.subscribe(List(topic).asJava)
+  consumer.assign(util.Arrays.asList(new TopicPartition(topic, 0)))
+//  consumer.subscribe(List(topic).asJava)
 
   private def configuration: Properties = {
     val props = new Properties()
@@ -25,9 +26,6 @@ class PositionsConsumer(topic: String, groupId: String) extends VehicleInfoJsonS
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getCanonicalName)
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[ByteArrayDeserializer].getCanonicalName)
     props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, fetch_max_bytes) // largest size of a message that can be fetched
-//    props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
-//    props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false")
     props
   }
 
@@ -55,13 +53,12 @@ class PositionsConsumer(topic: String, groupId: String) extends VehicleInfoJsonS
       .mapValues(_.last.value)
       .mapValues(FeedEntity.parseFrom)
 
-    val map = entities
+    entities
       .filter { case (_, e) => e.hasVehicle }
       .mapValues(_.getVehicle)
       .filter { case (_, vehicle) => vehicle.hasPosition }
       .mapValues(_.getPosition)
 
-    map
   }
 
 }

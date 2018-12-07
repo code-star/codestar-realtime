@@ -5,19 +5,21 @@ import akka.pattern.ask
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
-import nl.codestar.consumers.positions.PositionsActor.GetByBox
+import nl.codestar.consumers.positions.PositionsActor.GetLocationsByBox
 import nl.codestar.util.BoundingBox
 
 import scala.concurrent.duration._
-import akka.http.scaladsl.marshalling.ToResponseMarshallable
+import spray.json.JsValue
+
+import scala.concurrent.Await
 
 trait PositionsRoutes {
 
-  implicit val timeout: Timeout = Timeout(5 seconds) // needed for `?` below
+  implicit val timeout: Timeout = Timeout(3 seconds) // needed for `?` below
 
   // we leave these abstract, since they will be provided by the App
   implicit def system: ActorSystem
-  def positionsActor: ActorRef
+  val positionsActor: ActorRef
 
   lazy val positionsRoutes: Route = {
     pathSingleSlash {
@@ -27,8 +29,10 @@ trait PositionsRoutes {
     } ~
     path("ns" / "positions") {
       parameters('n.as[Double], 'e.as[Double], 's.as[Double], 'w.as[Double]) { (n, e, s, w) =>
-        val vehiclePositions = (positionsActor ? GetByBox(BoundingBox(n,e,s,w))).mapTo[ToResponseMarshallable]
-        complete(vehiclePositions)
+        val future = (positionsActor ? GetLocationsByBox(BoundingBox(n,e,s,w))).mapTo[JsValue]
+        val vehiclePositions = Await.result(future, timeout.duration)
+        println(vehiclePositions)
+        complete(vehiclePositions.toString)
       } ~ complete("need to provide the coordinates of a bounding box (n,e,s,w)")
     }
   }
