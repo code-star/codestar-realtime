@@ -1,6 +1,6 @@
 package nl.codestar.consumers.positions
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.pattern.ask
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -27,14 +27,14 @@ trait PositionsRoutes {
         complete("Hello!")
       }
     } ~
-    path("ns" / "positions") {
-      parameters('n.as[Double], 'e.as[Double], 's.as[Double], 'w.as[Double]) { (n, e, s, w) =>
-        val future = (positionsActor ? GetLocationsByBox(BoundingBox(n,e,s,w))).mapTo[JsValue]
-        val vehiclePositions = Await.result(future, timeout.duration)
-        println(vehiclePositions)
-        complete(vehiclePositions.toString)
-      } ~ complete("need to provide the coordinates of a bounding box (n,e,s,w)")
-    }
+      path("ns" / "positions") {
+        parameters('n.as[Double], 'e.as[Double], 's.as[Double], 'w.as[Double]) { (n, e, s, w) =>
+          val future = (positionsActor ? GetLocationsByBox(BoundingBox(n, e, s, w))).mapTo[JsValue]
+          val vehiclePositions = Await.result(future, timeout.duration)
+          println(vehiclePositions)
+          complete(vehiclePositions.toString)
+        } ~ complete("need to provide the coordinates of a bounding box (n,e,s,w)")
+      }
   }
 
 }

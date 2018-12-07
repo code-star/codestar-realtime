@@ -1,11 +1,11 @@
 package nl.codestar.consumers.positions
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ ActorRef, ActorSystem, Props }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.typesafe.config.{Config, ConfigFactory}
-import org.slf4j.{Logger, LoggerFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
+import org.slf4j.{ Logger, LoggerFactory }
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.io.StdIn

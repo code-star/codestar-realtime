@@ -1,17 +1,17 @@
 package nl.codestar.producers
 
-import java.util.{Calendar, Properties}
+import java.util.{ Calendar, Properties }
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import nl.codestar.data.DataSourceGenerator
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
-import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
-import org.slf4j.{Logger, LoggerFactory}
+import org.apache.kafka.clients.producer.{ KafkaProducer, ProducerConfig, ProducerRecord }
+import org.apache.kafka.common.serialization.{ ByteArraySerializer, StringSerializer }
+import org.slf4j.{ Logger, LoggerFactory }
 
 class GenericProducer(topic: String, source: DataSourceGenerator) {
   import GenericProducer._
 
-//  val max_request_size: String = (5 * 1024 * 1024).toString
+  //  val max_request_size: String = (5 * 1024 * 1024).toString
 
   private val producer = new KafkaProducer[String, Array[Byte]](configuration)
 
@@ -20,7 +20,7 @@ class GenericProducer(topic: String, source: DataSourceGenerator) {
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, classOf[StringSerializer].getCanonicalName)
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, classOf[ByteArraySerializer].getCanonicalName)
-//    props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, max_request_size)
+    //    props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, max_request_size)
     props
   }
 

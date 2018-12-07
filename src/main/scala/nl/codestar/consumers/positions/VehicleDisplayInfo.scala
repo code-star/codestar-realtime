@@ -2,24 +2,26 @@ package nl.codestar.consumers.positions
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import nl.codestar.data.VehicleInfo
-import spray.json.{DefaultJsonProtocol, JsonFormat}
+import spray.json.{ DefaultJsonProtocol, JsonFormat }
 
-case class VehicleDisplayInfoTags
-  (id: String,
-   time: Long,
-   text: String)
+case class VehicleDisplayInfoTags(
+  id: String,
+  time: Long,
+  text: String
+)
 
 /**
-  * Information about a vehicle to be displayed on the map.
-  * @param `type` always "node"
-  * @param tags data to be displayed when clicked in the node.
-  */
-case class VehicleDisplayInfo
-  (`type`: String = "node",
-   id: String,
-   latitude: Double,
-   longitude: Double,
-   tags: VehicleDisplayInfoTags)
+ * Information about a vehicle to be displayed on the map.
+ * @param `type` always "node"
+ * @param tags data to be displayed when clicked in the node.
+ */
+case class VehicleDisplayInfo(
+  `type`: String = "node",
+  id: String,
+  latitude: Double,
+  longitude: Double,
+  tags: VehicleDisplayInfoTags
+)
 
 object VehicleDisplayInfo {
 

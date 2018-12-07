@@ -28,13 +28,9 @@ class OVLoketConnection(port: Int, envelopes: Iterable[String] = Iterable.empty,
   subscriber.connect(s"tcp://$url:$port")
   subscribe(envelopes)
 
-  def subscribe(envelopes: Iterable[String]): Unit = {
-    envelopes.map(_.getBytes).foreach(subscriber.subscribe)
-  }
+  def subscribe(envelopes: Iterable[String]): Unit = envelopes.map(_.getBytes).foreach(subscriber.subscribe)
 
-  def subscribe(envelope: String): Unit = {
-    this.subscribe(List(envelope))
-  }
+  def subscribe(envelope: String): Unit = this.subscribe(List(envelope))
 
   /**
    * @return the message type and the message content as an XML

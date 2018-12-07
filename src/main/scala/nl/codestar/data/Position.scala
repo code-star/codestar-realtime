@@ -11,7 +11,7 @@ case class Position(latitude: Double, longitude: Double) {
 
 object Position extends DefaultJsonProtocol {
 
-  val utrechtCentraal = Position(52.0894444,5.1077981)
+  val utrechtCentraal = Position(52.0894444, 5.1077981)
 
   implicit def gtfsPositionToPosition(p: GtfsRealtime.Position): Position = Position(p.getLatitude, p.getLongitude)
 
@@ -24,14 +24,5 @@ trait PositionJsonSupport extends SprayJsonSupport {
   import DefaultJsonProtocol._
 
   implicit val positionFormat: JsonFormat[Position] = lazyFormat(jsonFormat2(Position.apply))
-
-}
-
-case class PositionTime(pos: Position, time: Long)
-
-trait PositionTimeJsonSupport extends SprayJsonSupport with PositionJsonSupport {
-  import DefaultJsonProtocol._
-
-  implicit val positionTimeFormat: JsonFormat[PositionTime] = lazyFormat(jsonFormat2(PositionTime.apply))
 
 }
