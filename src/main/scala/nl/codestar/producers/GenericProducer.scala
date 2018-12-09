@@ -1,36 +1,32 @@
 package nl.codestar.producers
 
-import akka.kafka.ProducerSettings
+import akka.actor.ActorSystem
 import akka.kafka.scaladsl.Producer
 import akka.stream.{KillSwitches, Materializer}
-import akka.stream.scaladsl.Source
 import com.typesafe.config.{Config, ConfigFactory}
 import nl.codestar.data.DataSourceGenerator
+import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.{ByteArraySerializer, StringSerializer}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-class GenericProducer(topic: String, source: DataSourceGenerator)(implicit materializer: Materializer, ec: ExecutionContext) {
+class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actorSystem: ActorSystem,
+                                                                  materializer: Materializer,
+                                                                  ec: ExecutionContext)
+    extends VehicleInfoJsonSupport {
 
   import GenericProducer._
+  import nl.codestar.util.KafkaUtil._
 
-  //  val max_request_size: String = (5 * 1024 * 1024).toString
-
-  val producerSettings = ProducerSettings(config, new StringSerializer, new ByteArraySerializer)
+  val producerSettings = kafkaProducerSettings[String, VehicleInfo]
     .withBootstrapServers(brokers)
 
   val killSwitch = KillSwitches.shared("close")
 
   def sendPeriodically(intervalMillis: Int = 1000): Unit = {
-    val done = Source.tick(0.seconds, intervalMillis.millis, ())
-      .flatMapConcat { _ =>
-        val results = source.poll()
-        Source.fromIterator(() => results.toSeq.iterator)
-      }
+    val done = source.source
       .map { case (id, content) => new ProducerRecord(topic, id, content) }
       .via(killSwitch.flow)
       .runWith(Producer.plainSink(producerSettings))
@@ -55,4 +51,3 @@ object GenericProducer {
   val brokers: String = config.getString("kafka.brokers")
 
 }
-
