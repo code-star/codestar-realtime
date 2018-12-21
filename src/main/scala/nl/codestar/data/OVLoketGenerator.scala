@@ -16,18 +16,20 @@ import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.util.zip.GZIPInputStream
 
-import akka.NotUsed
+import akka.Done
+import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import nl.codestar.model.VehicleInfo
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
-class OVLoketGenerator(port: Int, envelopes: Iterable[String], url: String = "pubsub.besteffort.ndovloket.nl")(implicit ec: ExecutionContext) extends DataSourceGenerator {
+class OVLoketGenerator(port: Int, envelopes: Iterable[String], url: String = "pubsub.besteffort.ndovloket.nl")(implicit ec: ExecutionContext, actorSystem: ActorSystem)
+    extends DataSourceGenerator {
 
-  def source: Source[(String, VehicleInfo), NotUsed] =
+  def source: Source[(String, VehicleInfo), Future[Done]] =
     ZeroMqSource(url, port, envelopes.toSeq)
-      .flatMapConcat { msg =>
-//        val msgType    = msg.pop.toString
+      .mapConcat { msg =>
+        val msgType    = msg.pop.toString
         val rawContent = msg.pop.getData
         val content    = unzip(rawContent)
         val xml        = scala.xml.XML.loadString(content)
@@ -40,7 +42,14 @@ class OVLoketGenerator(port: Int, envelopes: Iterable[String], url: String = "pu
           .mapValues(_.head) // Some TrainLocation have more than one MaterialPart; take only the first one.
           .mapValues(p => VehicleInfo(p.latitude, p.longitude, Instant.ofEpochMilli(VehicleInfo.gpsTimeToMillis(p.gpsDatetime))))
 
-        Source.fromIterator(() => vehicleInfos.toSeq.toIterator)
+        vehicleInfos
+      }
+      .watchTermination() {
+        case (stop, done) =>
+          done.map { _ =>
+            stop()
+            Done
+          }
       }
 
   private def unzip(xs: Array[Byte]): String = {

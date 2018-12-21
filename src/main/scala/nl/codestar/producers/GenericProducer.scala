@@ -1,5 +1,6 @@
 package nl.codestar.producers
 
+import akka.Done
 import akka.actor.ActorSystem
 import akka.kafka.scaladsl.Producer
 import akka.stream.{KillSwitches, Materializer}
@@ -9,12 +10,10 @@ import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actorSystem: ActorSystem,
-                                                                  materializer: Materializer,
-                                                                  ec: ExecutionContext)
+class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actorSystem: ActorSystem, materializer: Materializer, ec: ExecutionContext)
     extends VehicleInfoJsonSupport {
 
   import GenericProducer._
@@ -25,7 +24,7 @@ class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actor
 
   val killSwitch = KillSwitches.shared("close")
 
-  def sendPeriodically(intervalMillis: Int = 1000): Unit = {
+  def sendPeriodically: Future[Done] = {
     val done = source.source
       .map { case (id, content) => new ProducerRecord(topic, id, content) }
       .via(killSwitch.flow)
@@ -35,9 +34,12 @@ class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actor
       case Success(_) => logger.info(s"Producer ${topic} completed successfully")
       case Failure(e) => logger.error(s"Producer ${topic} completed with error", e)
     }
+
+    done
   }
 
   def close(): Unit = {
+    println("Shutting down")
     killSwitch.shutdown()
   }
 }
