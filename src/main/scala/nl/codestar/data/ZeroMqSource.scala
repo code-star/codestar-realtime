@@ -18,18 +18,23 @@ object ZeroMqSource {
       envelopes.map(_.getBytes).foreach(socket.subscribe)
 
       AsyncCallbackSource[ZMsg] { callback =>
-        loop.addPoller(new ZMQ.PollItem(socket, Poller.POLLIN), (_, _, _) => {
-          val msg = ZMsg.recvMsg(socket)
-          callback.invoke(msg)
-          0
-        }, null)
+        loop.addPoller(
+          new ZMQ.PollItem(socket, Poller.POLLIN),
+          (_, _, _) => {
+            val msg = ZMsg.recvMsg(socket)
+            callback.invoke(msg)
+            0
+          },
+          null
+        )
+        loop.start()
       }.watchTermination() {
-          case (_, done) =>
-            done.map { _ =>
-              socket.close()
-              context.close()
-              Done
-            }
-        }
+        case (_, done) =>
+          done.map { _ =>
+            socket.close()
+            context.close()
+            Done
+          }
+      }
     }
 }
