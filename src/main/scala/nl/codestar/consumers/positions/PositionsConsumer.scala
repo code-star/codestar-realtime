@@ -43,23 +43,4 @@ class PositionsConsumer(topic: String, receiver: ActorRef)(implicit actorSystem:
       _ <- committerSinkDone
     } yield Done
 
-  //  /**
-  //    * Data from OpenOV
-  //    */
-  //  def pollGTFS(): Map[String, GtfsRealtime.Position] = this.synchronized {
-  //    val records = consumer.poll(3 * 1000)
-  //
-  //    val entities: Map[String, FeedEntity] = records.asScala
-  //      .groupBy(_.key)
-  //      .mapValues(_.last.value)
-  //      .mapValues(FeedEntity.parseFrom)
-  //
-  //    entities
-  //      .filter { case (_, e) => e.hasVehicle }
-  //      .mapValues(_.getVehicle)
-  //      .filter { case (_, vehicle) => vehicle.hasPosition }
-  //      .mapValues(_.getPosition)
-  //
-  //  }
-
 }

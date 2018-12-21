@@ -11,11 +11,7 @@ case class VehicleDisplayInfoTags(id: String, time: Long, text: String)
   * @param `type` always "node"
   * @param tags data to be displayed when clicked in the node.
   */
-case class VehicleDisplayInfo(`type`: String = "node",
-                              id: String,
-                              latitude: Double,
-                              longitude: Double,
-                              tags: VehicleDisplayInfoTags)
+case class VehicleDisplayInfo(`type`: String = "node", id: String, latitude: Double, longitude: Double, tags: VehicleDisplayInfoTags)
 
 object VehicleDisplayInfo {
 
@@ -27,9 +23,7 @@ object VehicleDisplayInfo {
 trait VehicleDisplayInfoJsonSupport extends SprayJsonSupport {
   import DefaultJsonProtocol._
 
-  implicit val vehicleDisplayInfoFormat: JsonFormat[VehicleDisplayInfo] = lazyFormat(
-    jsonFormat5(VehicleDisplayInfo.apply))
-  implicit val vehicleDisplayInfoTagsFormat: JsonFormat[VehicleDisplayInfoTags] = lazyFormat(
-    jsonFormat3(VehicleDisplayInfoTags.apply))
+  implicit val vehicleDisplayInfoFormat: JsonFormat[VehicleDisplayInfo]         = lazyFormat(jsonFormat5(VehicleDisplayInfo.apply))
+  implicit val vehicleDisplayInfoTagsFormat: JsonFormat[VehicleDisplayInfoTags] = lazyFormat(jsonFormat3(VehicleDisplayInfoTags.apply))
 
 }
