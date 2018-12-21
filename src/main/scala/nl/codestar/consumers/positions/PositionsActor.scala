@@ -1,54 +1,35 @@
 package nl.codestar.consumers.positions
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorRef, Behavior}
 import nl.codestar.data.Position
-import nl.codestar.util.BoundingBox
-import spray.json._
-import DefaultJsonProtocol._
-import akka.stream.Materializer
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
+import nl.codestar.util.BoundingBox
 
 object PositionsActor {
-  final case class GetLocationsByBox(box: BoundingBox)
-  case class UpdatePosition(id: String, vehicleInfo: VehicleInfo)
-  case object Stop
+  sealed trait Command
+  final case class GetLocationsByBox(box: BoundingBox, replyTo: ActorRef[Seq[VehicleDisplayInfo]]) extends Command
+  case class UpdatePosition(id: String, vehicleInfo: VehicleInfo)                                  extends Command
+  case object Stop                                                                                 extends Command
 
-// TODO:
-//  final case class GetLocationsByDistance(pos: Position, distance: Double)
-//  final case class GetLocationsById(id: String)
+  // TODO:
+  //  final case class GetLocationsByDistance(pos: Position, distance: Double)
+  //  final case class GetLocationsById(id: String)
 
-  def props: Props = Props[PositionsActor]
-}
-
-/**
-  * Keeps track of latest vehicle info, processes updates and allows querying by bounding box
-  */
-class PositionsActor(topic: String, groupId: String)(implicit actorSystem: ActorSystem, materializer: Materializer)
-    extends Actor
-    with ActorLogging
-    with VehicleDisplayInfoJsonSupport {
-  import PositionsActor._
-
-  private val consumer = new PositionsConsumer(topic, receiver = self)
-
-  /**
-    * Cache of latest info for each id.
-    */
-  private var lastInfoCache = Map.empty[String, VehicleInfo]
-
-  def receive: Receive = {
+  def behavior(lastInfoCache: Map[String, VehicleInfo] = Map.empty): Behavior[Command] = Behaviors.receiveMessage {
     case UpdatePosition(id, vehicleInfo) =>
-      lastInfoCache = lastInfoCache + (id -> vehicleInfo)
+      behavior(lastInfoCache + (id -> vehicleInfo))
 
-    case GetLocationsByBox(box) =>
+    case GetLocationsByBox(box, replyTo) =>
       val positionsInBox = lastInfoCache
         .filter { case (_, info) => box.contains(Position(info.latitude, info.longitude)) }
         .map { case (k, v) => VehicleDisplayInfo.fromInfo(k, v) }
         .toSeq
-      sender ! positionsInBox.toJson
+      replyTo ! positionsInBox
+      Behaviors.same
 
     case Stop =>
-      consumer.close() // TODO await and log
+      Behaviors.stopped
   }
 }
 

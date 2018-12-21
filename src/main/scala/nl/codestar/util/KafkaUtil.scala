@@ -11,7 +11,7 @@ object KafkaUtil {
   import spray.json._
 
   implicit val stringDeserializer: Deserializer[String] = new StringDeserializer
-  implicit val stringSerializer: Serializer[String] = new StringSerializer
+  implicit val stringSerializer: Serializer[String]     = new StringSerializer
 
   implicit def jsonDeserializer[T: JsonFormat]: Deserializer[T] = new Deserializer[T] {
     override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = ()
@@ -30,7 +30,7 @@ object KafkaUtil {
 
   }
 
-  def flattenTuple[A, B, C]: (((A, B), C)) => (A, B, C) = {
+  def flattenTuple3[A, B, C]: (((A, B), C)) => (A, B, C) = {
     case ((a, b), c) => (a, b, c)
   }
 
