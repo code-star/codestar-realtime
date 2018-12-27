@@ -5,7 +5,7 @@ lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "nl.codestar",
-      scalaVersion := "2.12.4"
+      scalaVersion := "2.12.6"
     )),
     name := "CodestarRealtime",
     version := "0.1",
@@ -24,7 +24,6 @@ lazy val root = (project in file(".")).
 
       "org.slf4j" % "slf4j-simple" % "1.7.21", // "1.6.4"
       "org.apache.kafka" % "kafka-clients" % "0.10.1.0",
-      //      "com.typesafe.akka"  %% "akka-stream"          % "2.5.18",
       "com.google.transit" % "gtfs-realtime-bindings" % "0.0.4",
 
       // https://mvnrepository.com/artifact/com.googlecode.protobuf-java-format/protobuf-java-format
