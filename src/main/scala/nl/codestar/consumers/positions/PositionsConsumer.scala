@@ -14,7 +14,7 @@ import nl.codestar.producers.GenericProducer
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
-  * Consumes VehicleInfo from the topic and pushes them to the given receiver actor
+  * Consumes [[VehicleInfo]] from the kafka topic and pushes them to the given receiver actor
   */
 class PositionsConsumer(topic: String, groupId: String, receiver: ActorRef[UpdatePosition])(implicit actorSystem: ActorSystem, materializer: Materializer)
     extends VehicleInfoJsonSupport {
@@ -31,8 +31,6 @@ class PositionsConsumer(topic: String, groupId: String, receiver: ActorRef[Updat
 
   val stream = source
     .alsoToMat(Sink.foreach { msg =>
-      println(s"Consuming message ${msg}")
-
       receiver ! UpdatePosition(msg.record.key(), msg.record.value)
     })(Keep.both)
     .toMat(Committer.sink(CommitterSettings(actorSystem)).contramap(_.committableOffset))(Keep.both)

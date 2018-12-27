@@ -33,7 +33,10 @@ lazy val root = (project in file(".")).
 //      "com.google.protobuf" % "protobuf-java-util"  % "3.6.1" // for JsonFormat
 
       "org.zeromq"          % "jeromq"                % "0.4.0",
-      "com.typesafe.akka" %% "akka-stream-kafka" % "1.0-M1"
+      "com.typesafe.akka" %% "akka-stream-kafka" % "1.0-M1",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+      "ch.qos.logback" % "logback-classic" % "1.2.3",
+      "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
     )
   )
 

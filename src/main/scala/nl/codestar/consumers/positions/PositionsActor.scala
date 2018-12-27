@@ -2,21 +2,28 @@ package nl.codestar.consumers.positions
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import com.typesafe.scalalogging.Logger
 import nl.codestar.data.Position
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
+import nl.codestar.consumers.positions.PositionsActor._
 
 /**
   * Actor that receives updates of vehicle info and stores them in a cache for retrieval
+  *
+  * Forward the actor [[UpdatePosition]] messages or send it [[GetLocationsByBox]] to retrieve the latest positions
   */
 object PositionsActor {
+  val logger = Logger(getClass)
 
   def behavior(lastInfoCache: Map[String, VehicleInfo] = Map.empty): Behavior[Command] = Behaviors.receiveMessage {
     case UpdatePosition(id, vehicleInfo) =>
       val newCache = if (lastInfoCache.get(id).forall(_.time isBefore vehicleInfo.time)) {
+        logger.info(s"Processing update for vehicle ${id}")
         lastInfoCache + (id -> vehicleInfo)
       } else {
         // Ignore obsolete updates
+        logger.info(s"Ignoring obsolete update for vehicle ${id}")
         lastInfoCache
       }
 
