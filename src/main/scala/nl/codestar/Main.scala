@@ -31,7 +31,7 @@ object Main extends App with PositionsRoutes {
   // Start feeds
   val ovLoketSource = createOvLoketFeeder
   val openOvSource  = createOpenOvFeeder
-  val sources       = openOvSource.source // ovLoketSource.source merge openOvSource.source
+  val sources       = ovLoketSource.source merge openOvSource.source
   val kafkaProducer = new VehicleInfoProducer(topic, sources)
 
   // Start consumer
