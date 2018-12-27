@@ -1,22 +1,22 @@
-package nl.codestar.producers
+package nl.codestar.feeds
 
-import akka.Done
+import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.kafka.scaladsl.Producer
+import akka.stream.scaladsl.Source
 import akka.stream.{KillSwitches, Materializer}
 import com.typesafe.config.{Config, ConfigFactory}
-import nl.codestar.feeds.DataSourceGenerator
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actorSystem: ActorSystem, materializer: Materializer, ec: ExecutionContext)
+class VehicleInfoProducer(topic: String, source: Source[(String, VehicleInfo), Any])(implicit actorSystem: ActorSystem, materializer: Materializer, ec: ExecutionContext)
     extends VehicleInfoJsonSupport {
 
-  import GenericProducer._
+  import VehicleInfoProducer._
   import nl.codestar.util.KafkaUtil._
 
   val producerSettings = kafkaProducerSettings[String, VehicleInfo]
@@ -24,18 +24,14 @@ class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actor
 
   val killSwitch = KillSwitches.shared("close")
 
-  def sendPeriodically: Future[Done] = {
-    val done = source.source
-      .map { case (id, content) => new ProducerRecord(topic, id, content) }
-      .via(killSwitch.flow)
-      .runWith(Producer.plainSink(producerSettings))
+  val done = source
+    .map { case (id, content) => new ProducerRecord(topic, id, content) }
+    .via(killSwitch.flow)
+    .runWith(Producer.plainSink(producerSettings))
 
-    done.onComplete {
-      case Success(_) => logger.info(s"Producer ${topic} completed successfully")
-      case Failure(e) => logger.error(s"Producer ${topic} completed with error", e)
-    }
-
-    done
+  done.onComplete {
+    case Success(_) => logger.info(s"Producer ${topic} completed successfully")
+    case Failure(e) => logger.error(s"Producer ${topic} completed with error", e)
   }
 
   def close(): Unit = {
@@ -44,7 +40,7 @@ class GenericProducer(topic: String, source: DataSourceGenerator)(implicit actor
   }
 }
 
-object GenericProducer {
+object VehicleInfoProducer {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 

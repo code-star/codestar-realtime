@@ -8,8 +8,8 @@ import akka.kafka.{CommitterSettings, Subscriptions}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Keep, Sink}
 import nl.codestar.consumers.positions.PositionsActor.UpdatePosition
+import nl.codestar.feeds.VehicleInfoProducer
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
-import nl.codestar.producers.GenericProducer
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -25,7 +25,7 @@ class PositionsConsumer(topic: String, groupId: String, receiver: ActorRef[Updat
 
   val source = Consumer
     .committableSource(kafkaConsumerSettings[String, VehicleInfo]
-                         .withBootstrapServers(GenericProducer.brokers)
+                         .withBootstrapServers(VehicleInfoProducer.brokers)
                          .withGroupId(groupId),
                        Subscriptions.topics(topic))
 

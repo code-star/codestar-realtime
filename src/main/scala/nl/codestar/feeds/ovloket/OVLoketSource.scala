@@ -19,13 +19,15 @@ import java.util.zip.GZIPInputStream
 import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
-import nl.codestar.feeds.{DataSourceGenerator, ZeroMqSource}
+import com.typesafe.scalalogging.LazyLogging
+import nl.codestar.feeds.{VehicleInfoSource, ZeroMqSource}
 import nl.codestar.model.VehicleInfo
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class OVLoketGenerator(port: Int, envelopes: Iterable[String], url: String = "pubsub.besteffort.ndovloket.nl")(implicit ec: ExecutionContext, actorSystem: ActorSystem)
-    extends DataSourceGenerator {
+class OVLoketSource(port: Int, envelopes: Iterable[String], url: String = "pubsub.besteffort.ndovloket.nl")(implicit ec: ExecutionContext, actorSystem: ActorSystem)
+    extends VehicleInfoSource
+    with LazyLogging {
 
   def source: Source[(String, VehicleInfo), Future[Done]] =
     ZeroMqSource(url, port, envelopes.toSeq)
@@ -48,6 +50,7 @@ class OVLoketGenerator(port: Int, envelopes: Iterable[String], url: String = "pu
       .watchTermination() {
         case (stop, done) =>
           done.map { _ =>
+            logger.info("Closing ZeroMQ source")
             stop()
             Done
           }
