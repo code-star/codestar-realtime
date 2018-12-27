@@ -6,19 +6,21 @@ import nl.codestar.data.Position
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 
+/**
+  * Actor that receives updates of vehicle info and stores them in a cache for retrieval
+  */
 object PositionsActor {
-  sealed trait Command
-  final case class GetLocationsByBox(box: BoundingBox, replyTo: ActorRef[Seq[VehicleDisplayInfo]]) extends Command
-  case class UpdatePosition(id: String, vehicleInfo: VehicleInfo)                                  extends Command
-  case object Stop                                                                                 extends Command
-
-  // TODO:
-  //  final case class GetLocationsByDistance(pos: Position, distance: Double)
-  //  final case class GetLocationsById(id: String)
 
   def behavior(lastInfoCache: Map[String, VehicleInfo] = Map.empty): Behavior[Command] = Behaviors.receiveMessage {
     case UpdatePosition(id, vehicleInfo) =>
-      behavior(lastInfoCache + (id -> vehicleInfo))
+      val newCache = if (lastInfoCache.get(id).forall(_.time isBefore vehicleInfo.time)) {
+        lastInfoCache + (id -> vehicleInfo)
+      } else {
+        // Ignore obsolete updates
+        lastInfoCache
+      }
+
+      behavior(newCache)
 
     case GetLocationsByBox(box, replyTo) =>
       val positionsInBox = lastInfoCache
@@ -31,6 +33,15 @@ object PositionsActor {
     case Stop =>
       Behaviors.stopped
   }
+
+  sealed trait Command
+  final case class GetLocationsByBox(box: BoundingBox, replyTo: ActorRef[Seq[VehicleDisplayInfo]]) extends Command
+  case class UpdatePosition(id: String, vehicleInfo: VehicleInfo)                                  extends Command
+  case object Stop                                                                                 extends Command
+
+  // TODO:
+  //  final case class GetLocationsByDistance(pos: Position, distance: Double)
+  //  final case class GetLocationsById(id: String)
 }
 
 // not used for the moment
