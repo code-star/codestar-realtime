@@ -34,6 +34,7 @@ class OpenOVSource(feederUrl: String, pollInterval: FiniteDuration = 10.seconds)
         //    ) yield id
         val d = data
           .filter(_.hasVehicle)
+          .filter(_.getVehicle.hasPosition)
           .map(e => (e.getId, vehicleInfoFromFeedEntity(e)))
 
         logger.info(s"Received ${d.size} records")
