@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.kafka.scaladsl.Producer
 import akka.stream.{KillSwitches, Materializer}
 import com.typesafe.config.{Config, ConfigFactory}
-import nl.codestar.data.DataSourceGenerator
+import nl.codestar.feeds.DataSourceGenerator
 import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.{Logger, LoggerFactory}

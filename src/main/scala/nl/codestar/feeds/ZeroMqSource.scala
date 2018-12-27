@@ -1,4 +1,4 @@
-package nl.codestar.data
+package nl.codestar.feeds
 
 import akka.actor.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors

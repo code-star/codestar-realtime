@@ -1,4 +1,4 @@
-package nl.codestar.data
+package nl.codestar.feeds.ovloket
 
 /**
   *
@@ -19,6 +19,7 @@ import java.util.zip.GZIPInputStream
 import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
+import nl.codestar.feeds.{DataSourceGenerator, ZeroMqSource}
 import nl.codestar.model.VehicleInfo
 
 import scala.concurrent.{ExecutionContext, Future}

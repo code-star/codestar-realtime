@@ -3,8 +3,7 @@ package nl.codestar.consumers.positions
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import com.typesafe.scalalogging.Logger
-import nl.codestar.data.Position
-import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
+import nl.codestar.model.{Position, VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 import nl.codestar.consumers.positions.PositionsActor._
 

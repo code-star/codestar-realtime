@@ -2,7 +2,7 @@ package nl.codestar.model
 
 import java.time.Instant
 
-import spray.json.{DefaultJsonProtocol, JsNumber, JsValue}
+import spray.json.DefaultJsonProtocol
 
 case class VehicleInfo(latitude: Double, longitude: Double, time: Instant) extends Ordered[VehicleInfo] {
 
@@ -27,7 +27,7 @@ object VehicleInfo extends DefaultJsonProtocol {
 }
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.{DefaultJsonProtocol, JsonFormat}
+import spray.json.DefaultJsonProtocol
 
 trait VehicleInfoJsonSupport extends SprayJsonSupport {
 

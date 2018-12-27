@@ -1,4 +1,4 @@
-package nl.codestar.data
+package nl.codestar.feeds
 
 import akka.Done
 import akka.stream.scaladsl.Source

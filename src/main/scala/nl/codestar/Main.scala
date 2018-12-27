@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import nl.codestar.consumers.positions.{PositionsActor, PositionsConsumer, PositionsRoutes}
-import nl.codestar.data.OVLoketGenerator
+import nl.codestar.feeds.ovloket.OVLoketGenerator
 import nl.codestar.producers.GenericProducer
 import org.slf4j.{Logger, LoggerFactory}
 

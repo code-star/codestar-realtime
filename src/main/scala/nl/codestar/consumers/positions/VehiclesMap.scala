@@ -1,8 +1,7 @@
 package nl.codestar.consumers.positions
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import nl.codestar.data.Position
-import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
+import nl.codestar.model.{Position, VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 
 import scala.collection.mutable

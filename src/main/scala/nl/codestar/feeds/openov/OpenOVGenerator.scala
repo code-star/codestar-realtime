@@ -1,4 +1,4 @@
-package nl.codestar.data
+package nl.codestar.feeds.openov
 
 import java.io.InputStream
 import java.net.URL
@@ -7,6 +7,7 @@ import java.time.Instant
 import akka.Done
 import akka.stream.scaladsl.{Keep, Source}
 import com.google.transit.realtime.GtfsRealtime.{FeedEntity, FeedMessage}
+import nl.codestar.feeds.DataSourceGenerator
 import nl.codestar.model.VehicleInfo
 
 import scala.collection.JavaConverters._
