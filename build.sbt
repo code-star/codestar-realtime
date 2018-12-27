@@ -4,8 +4,8 @@ lazy val akkaVersion    = "2.5.11"
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
-      organization    := "nl.codestar",
-      scalaVersion    := "2.12.4"
+      organization := "nl.codestar",
+      scalaVersion := "2.12.6"
     )),
     name := "CodestarRealtime",
     version := "0.1",

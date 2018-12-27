@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: codestar/circleci-scala-sbt-git:scala-2.12.6-sbt-1.1.4
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - app-v1-{{ checksum "project/plugins.sbt" }}-{{ checksum "build.sbt" }}
+            - app-v1
+
+      - run:
+          command:
+            sbt compile test:compile exit
+
+      - save_cache:
+          key: app-v1-{{ checksum "project/plugins.sbt" }}-{{ checksum "build.sbt" }}
+          paths:
+            - target/resolution-cache
+            - target/streams
+            - project/target/resolution-cache
+            - project/target/streams
+            - ~/.ivy2/cache
+      - save_cache:
+          key: app-v1
+          paths:
+            - ~/.ivy2/cache
+
+      - run:
+          name: "Unit Tests"
+          command:
+            sbt test exit
