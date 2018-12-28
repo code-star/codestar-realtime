@@ -1,4 +1,4 @@
-package nl.codestar.data
+package nl.codestar.model
 
 import com.google.transit.realtime.GtfsRealtime
 import spray.json.DefaultJsonProtocol
@@ -18,7 +18,7 @@ object Position extends DefaultJsonProtocol {
 }
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.{ DefaultJsonProtocol, JsonFormat }
+import spray.json.{DefaultJsonProtocol, JsonFormat}
 
 trait PositionJsonSupport extends SprayJsonSupport {
   import DefaultJsonProtocol._

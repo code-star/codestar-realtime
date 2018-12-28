@@ -1,7 +1,7 @@
 package nl.codestar.consumers.positions
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import nl.codestar.data.{Position, VehicleInfo, VehicleInfoJsonSupport}
+import nl.codestar.model.{Position, VehicleInfo, VehicleInfoJsonSupport}
 import nl.codestar.util.BoundingBox
 
 import scala.collection.mutable
@@ -20,7 +20,7 @@ class VehiclesMap {
   }
 
   def filterByBoundingBox(box: BoundingBox): t = {
-    val m = map.filter { case (_, info) => box.contains(Position(info.latitude,info.longitude)) }
+    val m = map.filter { case (_, info) => box.contains(Position(info.latitude, info.longitude)) }
     println(s"#after filter: ${m.values.size}")
     m
   }
@@ -60,10 +60,10 @@ trait VehiclesMapJsonSupport extends SprayJsonSupport with VehicleInfoJsonSuppor
 
   implicit def VehiclesMapJsonFormat: JsonFormat[VehiclesMap] = new RootJsonFormat[VehiclesMap] {
 
-    def write(m: VehiclesMap): JsValue = JsObject(m.map.map{ case (k,v) => k -> v.toJson}.toSeq : _*)
+    def write(m: VehiclesMap): JsValue = JsObject(m.map.map { case (k, v) => k -> v.toJson }.toSeq: _*)
 
     def read(value: JsValue): VehiclesMap = {
-      val m = value.asJsObject.fields.map { case (k, v) => k -> v.convertTo[VehicleInfo] }
+      val m  = value.asJsObject.fields.map { case (k, v) => k -> v.convertTo[VehicleInfo] }
       val vm = new VehiclesMap()
       vm.update(m)
       vm

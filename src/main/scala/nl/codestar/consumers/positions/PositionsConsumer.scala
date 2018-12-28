@@ -1,64 +1,48 @@
 package nl.codestar.consumers.positions
 
-import java.util
-import java.util.Properties
+import akka.Done
+import akka.actor.ActorSystem
+import akka.actor.typed.ActorRef
+import akka.kafka.scaladsl.{Committer, Consumer}
+import akka.kafka.{CommitterSettings, Subscriptions}
+import akka.stream.Materializer
+import akka.stream.scaladsl.{Keep, Sink}
+import nl.codestar.consumers.positions.PositionsActor.UpdatePosition
+import nl.codestar.feeds.VehicleInfoProducer
+import nl.codestar.model.{VehicleInfo, VehicleInfoJsonSupport}
 
-import com.google.transit.realtime.GtfsRealtime
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
-import com.google.transit.realtime.GtfsRealtime.FeedEntity
-import spray.json.JsonParser
-import nl.codestar.data.{VehicleInfo, VehicleInfoJsonSupport}
-import nl.codestar.producers.GenericProducer
-import org.apache.kafka.common.TopicPartition
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.collection.JavaConverters._
+/**
+  * Consumes [[VehicleInfo]] from the kafka topic and pushes them to the given receiver actor
+  */
+class PositionsConsumer(topic: String, groupId: String, receiver: ActorRef[UpdatePosition])(implicit actorSystem: ActorSystem, materializer: Materializer)
+    extends VehicleInfoJsonSupport {
 
-class PositionsConsumer(topic: String, groupId: String) extends VehicleInfoJsonSupport {
+  import nl.codestar.util.KafkaUtil._
 
-  val consumer = new KafkaConsumer[String, Array[Byte]](configuration)
-  consumer.assign(util.Arrays.asList(new TopicPartition(topic, 0)))
-//  consumer.subscribe(List(topic).asJava)
+  implicit val ec: ExecutionContext = actorSystem.dispatcher
 
-  private def configuration: Properties = {
-    val props = new Properties()
-    props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, GenericProducer.brokers)
-    props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getCanonicalName)
-    props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[ByteArrayDeserializer].getCanonicalName)
-    props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId)
-    props
-  }
+  val source = Consumer
+    .committableSource(kafkaConsumerSettings[String, VehicleInfo]
+                         .withBootstrapServers(VehicleInfoProducer.brokers)
+                         .withGroupId(groupId),
+                       Subscriptions.topics(topic))
 
-  /**
-    * Data from OVLoket
-    */
-  def poll(): Map[String, VehicleInfo] = this.synchronized {
-    val records = consumer.poll(3 * 1000)
-    records.asScala
-      .groupBy(_.key)
-      .mapValues(_.map(_.value.map(_.toChar).mkString))       // Convert each sequence of Array[Byte] values to a sequence of Strings.
-      .mapValues(_.map(JsonParser(_).convertTo[VehicleInfo])) // Parse each String in the sequence into Json and unmarshal it to VehicleInfo.
-      .mapValues(_.toSeq.sortWith(_.time > _.time))           // Sort the VehicleInfo values by time.
-      .mapValues(_.head)                                      // Take the newest VehicleInfo, that is, the one with greater time.
-  }
+  val stream = source
+    .alsoToMat(Sink.foreach { msg =>
+      receiver ! UpdatePosition(msg.record.key(), msg.record.value)
+    })(Keep.both)
+    .toMat(Committer.sink(CommitterSettings(actorSystem)).contramap(_.committableOffset))(Keep.both)
+    .mapMaterializedValue(flattenTuple3)
 
-  /**
-    * Data from OpenOV
-    */
-  def pollGTFS(): Map[String, GtfsRealtime.Position] = this.synchronized {
-    val records = consumer.poll(3 * 1000)
+  val (control, done1, committerSinkDone) = stream.run()
 
-    val entities: Map[String, FeedEntity] = records.asScala
-      .groupBy(_.key)
-      .mapValues(_.last.value)
-      .mapValues(FeedEntity.parseFrom)
-
-    entities
-      .filter { case (_, e) => e.hasVehicle }
-      .mapValues(_.getVehicle)
-      .filter { case (_, vehicle) => vehicle.hasPosition }
-      .mapValues(_.getPosition)
-
-  }
+  def close(): Future[Done] =
+    for {
+      _ <- control.shutdown()
+      _ <- done1
+      _ <- committerSinkDone
+    } yield Done
 
 }

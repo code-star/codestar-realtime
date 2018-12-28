@@ -1,6 +1,6 @@
 package nl.codestar.util
 
-import nl.codestar.data.Position
+import nl.codestar.model.Position
 
 case class BoundingBox(north: Double, east: Double, south: Double, west: Double) {
 
@@ -8,7 +8,7 @@ case class BoundingBox(north: Double, east: Double, south: Double, west: Double)
     val lat = pos.latitude
     val lon = pos.longitude
     south <= lat && lat <= north &&
-      west <= lon && lon <= east
+    west <= lon && lon <= east
   }
 
 }

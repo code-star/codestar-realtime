@@ -1,13 +1,12 @@
-package nl.codestar.data
+package nl.codestar.feeds.ovloket
 
 import spray.json.DefaultJsonProtocol
 
-import scala.xml.{ Node, NodeSeq }
+import scala.xml.{Node, NodeSeq}
 
 /**
- * Data from NDOV-loket, port 7664, envelope /RIG/NStreinpositiesInterface5
- */
-
+  * Data from NDOV-loket, port 7664, envelope /RIG/NStreinpositiesInterface5
+  */
 case class TrainLocations(locations: List[TrainLocation]) {
 
   override def toString: String = s"TrainLocations(\n  $locations\n)"
@@ -22,8 +21,8 @@ object TrainLocations extends DefaultJsonProtocol {
 }
 
 /**
- * A train location is composed of a Train Number and one or more Train Material Parts (see example below).
- */
+  * A train location is composed of a Train Number and one or more Train Material Parts (see example below).
+  */
 case class TrainLocation(number: Int = -1, parts: List[MaterialPart]) {
 
   override def toString: String = s"TrainLocation($number: $parts)"
@@ -35,32 +34,32 @@ object TrainLocation extends DefaultJsonProtocol {
   // Ad-hoc unmarshalling
   def fromXMl(numberParts: NodeSeq): TrainLocation = {
     val number = numberParts.head.text.toInt
-    val parts = numberParts.tail.map(_.head.child)
+    val parts  = numberParts.tail.map(_.head.child)
     TrainLocation(number, parts.map(MaterialPart.fromXMl(_)).toList)
   }
 
 }
 
 /**
- * A Train Material Part is composed of the following elements:
- *   "MaterieelDeelNummer:Materieelvolgnummer:GpsDatumTijd:Orientatie:Bron:Fix:Berichttype:Longitude:Latitude:Elevation:Snelheid:Richting:Hdop:AantalSatelieten"
- * In English: Material Part Number: Material sequence number: GPS DateTime: Orientation: Source: Fix: Message type: Longitude: Latitude: Elevation: Speed: Direction: Hdop: NumberSatelites
- */
+  * A Train Material Part is composed of the following elements:
+  *   "MaterieelDeelNummer:Materieelvolgnummer:GpsDatumTijd:Orientatie:Bron:Fix:Berichttype:Longitude:Latitude:Elevation:Snelheid:Richting:Hdop:AantalSatelieten"
+  * In English: Material Part Number: Material sequence number: GPS DateTime: Orientation: Source: Fix: Message type: Longitude: Latitude: Elevation: Speed: Direction: Hdop: NumberSatelites
+  */
 case class MaterialPart(
-  number: Int = 0,
-  sequenceNumber: Int = 0,
-  gpsDatetime: String = "",
-  orientation: Int = 0,
-  source: String = "",
-  fix: Int = 0,
-  messageType: String = "",
-  longitude: Double = 0.0,
-  latitude: Double = 0.0,
-  elevation: Double = 0.0,
-  speed: Double = 0.0,
-  direction: Double = 0.0,
-  hdop: Double = 0.0,
-  numSatellites: Int = 0
+    number: Int = 0,
+    sequenceNumber: Int = 0,
+    gpsDatetime: String = "",
+    orientation: Int = 0,
+    source: String = "",
+    fix: Int = 0,
+    messageType: String = "",
+    longitude: Double = 0.0,
+    latitude: Double = 0.0,
+    elevation: Double = 0.0,
+    speed: Double = 0.0,
+    direction: Double = 0.0,
+    hdop: Double = 0.0,
+    numSatellites: Int = 0
 )
 
 object MaterialPart extends DefaultJsonProtocol {
@@ -68,8 +67,22 @@ object MaterialPart extends DefaultJsonProtocol {
   // Ad-hoc unmarshalling
   def fromXMl(ns: NodeSeq): MaterialPart = {
     val p = ns.map(_.text)
-    MaterialPart(p.head.toInt, p(1).toInt, p(2).toString, p(3).toInt, p(4).toString, p(5).toInt, p(6).toString,
-      p(7).toDouble, p(8).toDouble, p(9).toDouble, p(10).toDouble, p(11).toDouble, p(12).toDouble, p(13).toInt)
+    MaterialPart(
+      p.head.toInt,
+      p(1).toInt,
+      p(2).toString,
+      p(3).toInt,
+      p(4).toString,
+      p(5).toInt,
+      p(6).toString,
+      p(7).toDouble,
+      p(8).toDouble,
+      p(9).toDouble,
+      p(10).toDouble,
+      p(11).toDouble,
+      p(12).toDouble,
+      p(13).toInt
+    )
   }
 
 }
